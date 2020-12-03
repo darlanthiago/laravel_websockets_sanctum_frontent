@@ -8,6 +8,7 @@ const echo = new Echo({
   broadcaster: "pusher",
   key: process.env.REACT_APP_PUSHER_KEY,
   forceTLS: process.env.REACT_APP_PUSHER_TLS,
+  encrypted: process.env.REACT_APP_PUSHER_TLS,
   cluster: process.env.REACT_APP_PUSHER_CLUSTER,
   authorizer: (channel, options) => {
     return {
