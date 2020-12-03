@@ -2,6 +2,9 @@ import Echo from "laravel-echo";
 
 import api from "./api";
 
+window.Pusher = require('pusher-js');
+
+
 const echo = new Echo({
   broadcaster: "pusher",
   key: process.env.REACT_APP_PUSHER_KEY,
