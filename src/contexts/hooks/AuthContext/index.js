@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
     //check token is valid
 
-    await api
+    api
       .get("/api/user", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,24 +50,28 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
 
       await api.get("/sanctum/csrf-cookie");
-
-      const response = await api.post("/api/auth/login", {
+      api.post("/api/auth/login", {
         email,
         password,
+      }).then(response => {
+        const { token, user } = response.data;
+
+        api.defaults.headers["Authorization"] = `Bearer ${token}`;
+
+        localStorage.setItem("@RJSAuth:user", JSON.stringify(user));
+        localStorage.setItem("@RJSAuth:token", token);
+
+        setData({ token, user });
+
+        history.push("/home");
+
+        setLoading(false);
+      }).catch(error => {
+        setData({});
+        setLoading(false);
       });
 
-      const { token, user } = response.data;
 
-      api.defaults.headers["Authorization"] = `Bearer ${token}`;
-
-      localStorage.setItem("@RJSAuth:user", JSON.stringify(user));
-      localStorage.setItem("@RJSAuth:token", token);
-
-      setData({ token, user });
-
-      history.push("/home");
-
-      setLoading(false);
     },
     [history]
   );
@@ -75,16 +79,27 @@ export const AuthProvider = ({ children }) => {
   const signOut = useCallback(async () => {
     setLoading(true);
 
-    await api.delete("/api/auth/logout");
-    localStorage.removeItem("@RJSAuth:token");
-    localStorage.removeItem("@RJSAuth:user");
-    delete api.defaults.headers.common["Authorization"];
-    delete api.defaults.headers.common["XSRF-TOKEN"];
-    Cookies.remove("XSRF-TOKEN");
+    api.delete("/api/auth/logout").then(resp => {
+      localStorage.removeItem("@RJSAuth:token");
+      localStorage.removeItem("@RJSAuth:user");
+      delete api.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["XSRF-TOKEN"];
+      Cookies.remove("XSRF-TOKEN");
 
-    setData({});
-    history.push("/");
-    setLoading(false);
+      setData({});
+      history.push("/");
+      setLoading(false);
+
+    }).catch(error => {
+      localStorage.removeItem("@RJSAuth:token");
+      localStorage.removeItem("@RJSAuth:user");
+      delete api.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["XSRF-TOKEN"];
+      Cookies.remove("XSRF-TOKEN");
+      setData({});
+      setLoading(false);
+    });
+
   }, [history]);
 
   return (
