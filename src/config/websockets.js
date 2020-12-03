@@ -2,8 +2,7 @@ import Echo from "laravel-echo";
 
 import api from "./api";
 
-window.Pusher = require('pusher-js');
-
+window.Pusher = require("pusher-js");
 
 const echo = new Echo({
   broadcaster: "pusher",
