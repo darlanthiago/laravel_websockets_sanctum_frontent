@@ -2,6 +2,9 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
+  headers: {
+    accept: "application/json",
+  },
 });
 
 api.defaults.withCredentials = true;
